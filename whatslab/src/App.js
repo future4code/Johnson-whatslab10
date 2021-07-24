@@ -1,20 +1,23 @@
 import React from 'react';
 import styled from 'styled-components';
+import IconMenssagem from './telegram2.svg'
 
 const ListaDeMensagem = styled.div`
 display: flex;
 flex-grow: 1;
 flex-direction: column;
 justify-content: flex-end;
-padding: 25px;
-overflow: scroll;
-border: solid 3px yellow;
-width: 90%;
-height: 100%;
 
+overflow: auto;
+width: 100%;
+border: solid 1px red;
 `
 const ContainerPagina = styled.div`
-background-color: blueviolet;
+background-image: url("https://adoption.azureedge.net/wp-content/custom-backgrounds-gallery/user-submitted-background-46.jpg");
+opacity: 0.8;
+background-repeat: no-repeat;
+background-size: 100vw 100vh;
+background-color: #a3d7e6;
 height: 100vh;
 display: flex;
 justify-content: center;
@@ -22,21 +25,36 @@ box-sizing: border-box;
 `
 
 const PainelDeMensagem = styled.div`
-display: flex;
+display: grid;
 flex-direction: row;
-border: solid 3px gold;
+border: solid 1px black;
+align-items: center;
+justify-content: center;
+grid-template-columns:1fr 3fr 1fr;
+padding: 0px 10px;
+column-gap: 8px;
+
+
+input{
+    height: 30px;
+    border-radius: 12px;
+}
+
+button{
+    border-radius: 20px;
+    width: 100%
+}
 `
 
 const ContainerMensagem = styled.div`
-background-color: blue;
-display: flex;
-flex-direction: column;
-align-items: flex-end;
-justify-content: center;
-border: solid 3px green;
+background-image: linear-gradient(white, lightblue);
+display: grid;
+grid-template-rows: 8fr 1fr;
 width: 30%;
-height: 100%;
+height: 99%;
 `
+
+
 const BalaoDeMensagem = styled.div`
     background-color: ${props => {
         if (props.tipo === "eu") {
@@ -76,26 +94,39 @@ const BalaoDeMensagem = styled.div`
 
     `
 
+const ContainerNome = styled.div`
+    color: #9AAC8C;
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 0.2em;
+    font-weight:bold;
+`
+
 
 class App extends React.Component {
     state = {
-        listaDeMensagens: [{
-            nome: "Welcome to WhatsLab",
-            mensagem: "",
-        }],
+        listaDeMensagens: [],
         valorInputMensagem: "",
         valorInputUsuario: ""
     }
 
     adicionarMensagem = () => {
         const novaMensagem = {
+            id: Date.now(),
             nome: this.state.valorInputUsuario,
             mensagem: this.state.valorInputMensagem
         }
 
         const novaListaEstado = [...this.state.listaDeMensagens, novaMensagem]
-        this.setState({ listaDeMensagens: novaListaEstado })
+        this.setState({ listaDeMensagens: novaListaEstado, valorInputMensagem:"", valorInputUsuario:"" })
     }
+
+    deletaMensagem = (id) => {
+        const novaLista = this.state.listaDeMensagens.filter((array,indice) => {
+            return array.id!== id
+        })
+        this.setState({listaDeMensagens: novaLista})
+        }
 
     onChangeUsuario = (event) => {
         this.setState({ valorInputUsuario: event.target.value })
@@ -104,34 +135,37 @@ class App extends React.Component {
     onChangeInputMensagem = (event) => {
         this.setState({ valorInputMensagem: event.target.value })
     }
+    onKeyPressEnter = (event) => {
+        if(event.which === 13) {
+            this.adicionarMensagem();
+            }
+    }
+
 
     render() {
-        const listaDeComponents = this.state.listaDeMensagens.map((casas) => {
+
+        const listaDeComponents = this.state.listaDeMensagens.map((casas,indice) => {
+
+            const identificarDelete = () => {
+                this.deletaMensagem(casas.id)
+            }
+
             if (casas.nome.toLowerCase() === "eu") {
 
                 return (
-                    <BalaoDeMensagem tipo={"eu"}>
+                    <BalaoDeMensagem tipo={"eu"} key={casas.id} onDoubleClick={identificarDelete}>
                         {casas.mensagem}
                     </BalaoDeMensagem>
                 )
             } else {
 
                 return (
-                    <BalaoDeMensagem tipo={"outro"}>
-                        <div>{casas.nome}</div>
+                    <BalaoDeMensagem tipo={"outro"} key={casas.id} onDoubleClick={identificarDelete}>
+                        <ContainerNome>{casas.nome}</ContainerNome>
                         <div>{casas.mensagem}</div>
                     </BalaoDeMensagem>
                 )
             }
-
-
-            /*             return (
-                            <div>
-                                <strong>{casas.nome}</strong>
-                                <p>{casas.mensagem}</p>
-                            </div>
-                        ) */
-
         })
 
 
@@ -141,9 +175,9 @@ class App extends React.Component {
                 <ContainerMensagem>
                     <ListaDeMensagem> {listaDeComponents}</ListaDeMensagem>
                     <PainelDeMensagem>
-                        <input placeholder={"Usuário"} value={this.state.valorInputUsuario} onChange={this.onChangeUsuario} type="text" />
-                        <input placeholder={"Mensagem"} value={this.state.valorInputMensagem} onChange={this.onChangeInputMensagem} type="text" />
-                        <button onClick={this.adicionarMensagem}>Enviar</button>
+                        <input placeholder={"Usuário"} id="usuario" value={this.state.valorInputUsuario} onChange={this.onChangeUsuario} type="text" />
+                        <input placeholder={"Mensagem"} id="mensagem " value={this.state.valorInputMensagem} onKeyPress={this.onKeyPressEnter}  onChange={this.onChangeInputMensagem} type="text" />
+                        <button onClick={this.adicionarMensagem}><img src={IconMenssagem} alt="icone de enviar mensagem" /></button>
                     </PainelDeMensagem>
                 </ContainerMensagem>
             </ContainerPagina>
